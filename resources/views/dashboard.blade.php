@@ -272,35 +272,93 @@ var allCount = document.getElementById('all_count_field').value;
 					 </th>
 					</tr>
 					
-					<?php
-							$all =0;
-						?>
+					<?php 
+
+						$all =0; 
+						$current_day = Carbon\Carbon::now()->format('d');
+						$current_month = Carbon\Carbon::now()->format('m');
+						$current_year = Carbon\Carbon::now()->format('y');
+
+						
+						$date = date_create(Carbon\Carbon::now());
+				        $today_epoch = date_format($date, 'U');
+				        
+				    ?>
 
 					@foreach($events->sortBy('date_of_event') as $event)
+						
+						@if('Birthday' == $event->task)
 
-						@if( Carbon\Carbon::parse($event->date_of_event)->format('d-m-y') >= \Carbon\Carbon::now()->format('d-m-y') )
 						<?php
-							$all += 1;
-						?>
 
-						<tr id='list-row'>
 							
-							<td>
-								<a href='#{{ $event->id }}' >
-								 	<li class="list-group-item">
-								 		<div class="row" id="myList">
-							 					<div class="col-sm-2">{{ $event->id }}</div>
-										 		<div class="col-sm-2"><kbd> {{ $event->task }} </kbd></div>
-										 		<div class="col-sm-2">{{ Carbon\Carbon::parse($event->date_of_event)->format('d-M-Y') }}</div>
-										 		<div class="col-sm-6"> {{ $event->disc }} </div>
-										</div>
-								 	</li>
-								</a>
-							</td>
-						</tr>
+
+							$date = new DateTime();
+					        $year =  $date->format('Y');
+
+					        $start_date_of_year = $date->setDate((integer)$year,1,1);
+					        
+
+					        $event_date = date_create(Carbon\Carbon::parse($event->date_of_event));
+					        
+					        $interval = $start_date_of_year->diff($event_date);
+
+					        $event_day = (integer)$interval->format('%a');
+
+					        $current_date = date_create(Carbon\Carbon::now());
+					        $interval = $start_date_of_year->diff($current_date);
+					        $year_day = (integer)$interval->format('%a');
+
+
+					        if($event_day >= $year_day){ $all +=1; ?>
+					        	<tr id='list-row'>
+												<td>
+													<a href='#{{ $event->id }}' >
+													 	<li class="list-group-item">
+													 		<div class="row" id="myList">
+												 					<div class="col-sm-2">{{ $event->id }}</div>
+															 		<div class="col-sm-2"><kbd> {{ $event->task }} </kbd></div>
+															 		<div class="col-sm-2">{{ Carbon\Carbon::parse($event->date_of_event)->format('d-M-Y') }}</div>
+															 		<div class="col-sm-6"> {{ $event->disc }} </div>
+															</div>
+													 	</li>
+													</a>
+												</td>
+											</tr>
+					        <?php } ?>
+
+						@else
+
+								<?php
+
+									$date = date_create(Carbon\Carbon::parse($event->date_of_event));
+									$today_epoch = date_format(date_create(Carbon\Carbon::now()),'U');
+							        $event_epoch = date_format($date, 'U');
+							        // echo trim($event_epoch);
+
+
+									if($event_epoch >= $today_epoch){ $all +=1; ?>
+
+											<tr id='list-row'>
+												<td>
+													<a href='#{{ $event->id }}' >
+													 	<li class="list-group-item">
+													 		<div class="row" id="myList">
+												 					<div class="col-sm-2">{{ $event->id }}</div>
+															 		<div class="col-sm-2"><kbd> {{ $event->task }} </kbd></div>
+															 		<div class="col-sm-2">{{ Carbon\Carbon::parse($event->date_of_event)->format('d-M-Y') }}</div>
+															 		<div class="col-sm-6"> {{ $event->disc }} </div>
+															</div>
+													 	</li>
+													</a>
+												</td>
+											</tr>
+
+									<?php } ?>
+
 						@endif
 
-					@endforeach
+						@endforeach
 
 
 					<input type="hidden" id='all_count_field' value="@if(isset($all)) {{$all}} @else 0 @endif"/>

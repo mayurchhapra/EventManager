@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\User;
 use App\Event;
+use Carbon\Carbon;
+use DateTime;
 
 class UserController extends Controller
 {
@@ -93,5 +95,40 @@ class UserController extends Controller
     	Event::create($eventToSave);
 
     	return redirect()->route('eventRegister',['save'=>'Saved']);
+    }
+
+    public function today(){
+
+        $date = date_create('01/15/2022');
+        $epoch = date_format($date, 'U');
+        echo trim($epoch);
+
+        echo "<br>";
+        $date = new DateTime();
+        $year =  $date->format('Y');
+
+        echo gettype((integer)$year);
+        echo "<br>";
+
+        $start_date_of_year = $date->setDate((integer)$year,1,1);
+        echo date_format($start_date_of_year, 'U');
+        // echo "  ".$start_date_of_year->format('d-m-y');
+
+        echo "<br>";
+
+        $current_date = date_create(Carbon::now());
+        $current = date_format($current_date, 'U');
+        echo ($current);
+
+        echo "<br>";
+
+        $interval = $start_date_of_year->diff($current_date);
+
+        $gape = (integer)$interval->format('%a');
+
+        echo "Gape = ".$gape;
+
+
+
     }
 }
