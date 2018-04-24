@@ -119,15 +119,15 @@ var allCount = document.getElementById('all_count_field').value;
 
 <ul class="nav nav-tabs" role="tablist">
   <li class="nav-item">
-    <a class="nav-link active tab-heading" href="#profile" role="tab" data-toggle="tab" >Today's Events <span class="badge" style="background-color: #d55; font-size: 14px; color: #fff;" id="CountToday"></span>
+    <a class="nav-link active tab-heading" href="#today" role="tab" data-toggle="tab" >Today's Events <span class="badge" style="background-color: #d55; font-size: 14px; color: #fff;" id="CountToday"></span>
 		
     </a>
   </li>
   <li class="nav-item">
-    <a class="nav-link tab-heading" href="#buzz" role="tab" data-toggle="tab">Tomorrow's Events <span class="badge" style="background-color: #d55; font-size: 14px; color: #fff;" id="CountTomorrow"></span> </a>
+    <a class="nav-link tab-heading" href="#tomorrow" role="tab" data-toggle="tab">Tomorrow's Events <span class="badge" style="background-color: #d55; font-size: 14px; color: #fff;" id="CountTomorrow"></span> </a>
   </li>
   <li class="nav-item">
-    <a class="nav-link tab-heading" href="#references" role="tab" data-toggle="tab">All Events <span class="badge" style="background-color: #d55; font-size: 14px; color: #fff;" id="all"></span> </a>
+    <a class="nav-link tab-heading" href="#all_event" role="tab" data-toggle="tab">All Events <span class="badge" style="background-color: #d55; font-size: 14px; color: #fff;" id="all"></span> </a>
   </li>
 </ul>
 
@@ -135,7 +135,7 @@ var allCount = document.getElementById('all_count_field').value;
 
 <!-- Tab panes -->
 <div class="tab-content" >
-	<div role="tabpanel" class="tab-pane  active" id="profile">
+	<div role="tabpanel" class="tab-pane  active" id="today">
  		<!-- Today's Event -->
  		<div class="card">
 			<div class="card-header"><h3>Event List</h3> </div>
@@ -158,35 +158,118 @@ var allCount = document.getElementById('all_count_field').value;
 				 </th>
 				</tr>
 				
-				
+								
 
 				@foreach($events->sortBy('date_of_event') as $event)
 
+				@if('Birthday' == $event->task)
 
-				@if( Carbon\Carbon::parse($event->date_of_event)->format('d-m') == \Carbon\Carbon::now()->format('d-m') )
-				
-				<?php
-				$today_count = $event->where('date_of_event',Carbon\Carbon::parse($event->date_of_event))->count();
-				?>
+						<?php
 
-				
+							$date = new DateTime();
+					        $year =  $date->format('Y');
+					        // $diff_of_year = 1;
 
-				<tr id='list-row'>
-					
-					<td>
-						<a href='#{{ $event->id }}' >
-						 	<li class="list-group-item">
-						 		<div class="row" id="myList">
-					 					<div class="col-sm-2">{{ $event->id }}</div>
-								 		<div class="col-sm-2"><kbd> {{ $event->task }} </kbd></div>
-								 		<div class="col-sm-2"> {{ Carbon\Carbon::parse($event->date_of_event)->format('d-M') }}  </div>
-								 		<div class="col-sm-6"> {{ $event->disc }} </div>
-								</div>
-						 	</li>
-						</a>
-					</td>
-				</tr>
-				@endif
+					        $start_date_of_year = $date->setDate($year,1,1);
+					        $event_date = date_create(Carbon\Carbon::parse($event->date_of_event)->format('d-m')."-$year");
+
+					        // $event_date = date_create(Carbon\Carbon::parse($event->date_of_event));
+					        // $event_date = date_create(Carbon\Carbon::parse($event->date_of_event));
+
+					        $interval = $start_date_of_year->diff($event_date);
+					        $event_day = $interval->format('%a');
+
+					        // echo $event_year = Carbon\Carbon::parse($event->date_of_event)->format('Y');
+					        // $diff_of_year = $diff_of_year + ($year - $event_year);
+					        // $event_day = $event_day/$diff_of_year;
+					        // echo "--".($event_day)."--";
+
+					        $current_date = date_create(Carbon\Carbon::now());
+					        $interval = $start_date_of_year->diff($current_date);
+					        $year_day = $interval->format('%a');
+					        
+
+
+					        if($event_day == ($year_day-1)){ 
+					        	$today_count = $event->where('date_of_event',Carbon\Carbon::parse($event->date_of_event))->count();
+					        	?>
+					        	
+					        	<tr id='list-row'>
+									<td>
+										<a href='#{{ $event->id }}' >
+										 	<li class="list-group-item">
+										 		<div class="row" id="myList">
+								 					<div class="col-sm-2">{{ $event->id }}</div>
+											 		<div class="col-sm-2"><kbd> {{ $event->task }} </kbd></div>
+											 		<div class="col-sm-2">{{ Carbon\Carbon::parse($event->date_of_event)->format('d-M-Y') }}</div>
+											 		<div class="col-sm-6"> {{ $event->disc }} </div>
+												</div>
+										 	</li>
+										</a>
+									</td>
+								</tr>
+
+					        <?php } ?>
+
+					      @else
+
+
+								<?php
+
+									$date = new DateTime();
+							        $year =  $date->format('Y');
+							        $event_year = Carbon\Carbon::parse($event->date_of_event)->format('Y');
+							        
+							        // $diff_of_year = 1;
+
+							        $start_date_of_year = $date->setDate($year,1,1);
+							        $event_date = date_create(Carbon\Carbon::parse($event->date_of_event)->format('d-m')."-$year");
+
+							        // $event_date = date_create(Carbon\Carbon::parse($event->date_of_event));
+							        // $event_date = date_create(Carbon\Carbon::parse($event->date_of_event));
+
+							        $interval = $start_date_of_year->diff($event_date);
+							        $event_day = $interval->format('%a');
+
+							        // echo $event_year = Carbon\Carbon::parse($event->date_of_event)->format('Y');
+							        // $diff_of_year = $diff_of_year + ($year - $event_year);
+							        // $event_day = $event_day/$diff_of_year;
+							        // echo "--".($event_day)."--";
+
+							        $current_date = date_create(Carbon\Carbon::now());
+							        $interval = $start_date_of_year->diff($current_date);
+							        $year_day = $interval->format('%a');
+							       
+							        
+
+
+									// $date = date_create(Carbon\Carbon::parse($event->date_of_event));
+									// $today_epoch = date_format(date_create(Carbon\Carbon::now()),'U');
+									//$event_epoch = date_format($date, 'U');
+									//echo trim($event_epoch);
+
+									if($event_day == ($year_day-1) && $event_year == $year){ 
+										$today_count = $event->where('date_of_event',Carbon\Carbon::parse($event->date_of_event))->count();
+										?>
+
+
+										<tr id='list-row'>
+											<td>
+												<a href='#{{ $event->id }}' >
+												 	<li class="list-group-item">
+												 		<div class="row" id="myList">
+										 					<div class="col-sm-2">{{ $event->id }}</div>
+													 		<div class="col-sm-2"><kbd> {{ $event->task }} </kbd></div>
+													 		<div class="col-sm-2">{{ Carbon\Carbon::parse($event->date_of_event)->format('d-M-Y') }}</div>
+													 		<div class="col-sm-6"> {{ $event->disc }} </div>
+														</div>
+												 	</li>
+												</a>
+											</td>
+										</tr>
+
+									<?php } ?>
+					@endif
 				@endforeach
 				<input type="hidden" id='today_count_field' value="@if(isset($today_count)) {{$today_count}} @else 0 @endif"/>
 				</table>
@@ -194,8 +277,13 @@ var allCount = document.getElementById('all_count_field').value;
 		</div>
 	</div>
 
-	<div role="tabpanel" class="tab-pane fade" id="buzz">
-		<!-- Tomorrow's Event -->
+
+
+<!--          Tomorrow's Event               -->
+
+
+	<div role="tabpanel" class="tab-pane fade" id="tomorrow">
+	
 
 		<div class="card">
 			<div class="card-header"><h3>Event List</h3> </div>
@@ -219,29 +307,114 @@ var allCount = document.getElementById('all_count_field').value;
 				</tr>
 				
 				@foreach($events->sortBy('date_of_event') as $event)
-
-				@if( Carbon\Carbon::parse($event->date_of_event)->format('d-m') == \Carbon\Carbon::now()->addDays(1)->format('d-m') )
 				
-				<?php
-				$tomorrowCount = $event->where('date_of_event',Carbon\Carbon::parse($event->date_of_event))->count();
-				?>
+				@if('Birthday' == $event->task)
 
-				<tr id='list-row'>
-					
-					<td>
-						<a href='#{{ $event->id }}' >
-						 	<li class="list-group-item">
-						 		<div class="row" id="myList">
-					 					<div class="col-sm-2">{{ $event->id }}</div>
-								 		<div class="col-sm-2"><kbd> {{ $event->task }} </kbd></div>
-								 		<div class="col-sm-2"> {{ Carbon\Carbon::parse($event->date_of_event)->format('d-M') }}  </div>
-								 		<div class="col-sm-6"> {{ $event->disc }} </div>
-								</div>
-						 	</li>
-						</a>
-					</td>
-				</tr>
-				@endif
+						<?php
+
+							$date = new DateTime();
+					        $year =  $date->format('Y');
+					        // $diff_of_year = 1;
+
+					        $start_date_of_year = $date->setDate($year,1,1);
+					        $event_date = date_create(Carbon\Carbon::parse($event->date_of_event)->format('d-m')."-$year");
+
+					        // $event_date = date_create(Carbon\Carbon::parse($event->date_of_event));
+					        // $event_date = date_create(Carbon\Carbon::parse($event->date_of_event));
+
+					        $interval = $start_date_of_year->diff($event_date);
+					        $event_day = $interval->format('%a');
+
+					        // echo $event_year = Carbon\Carbon::parse($event->date_of_event)->format('Y');
+					        // $diff_of_year = $diff_of_year + ($year - $event_year);
+					        // $event_day = $event_day/$diff_of_year;
+					        // echo "--".($event_day)."--";
+
+					        $current_date = date_create(Carbon\Carbon::now());
+					        $interval = $start_date_of_year->diff($current_date);
+					        $year_day = $interval->format('%a');
+					        
+
+
+					        if($event_day == $year_day){ 
+					        	$tomorrowCount = $event->where('date_of_event',Carbon\Carbon::parse($event->date_of_event))->count();
+					        	?>
+					        	
+					        	<tr id='list-row'>
+									<td>
+										<a href='#{{ $event->id }}' >
+										 	<li class="list-group-item">
+										 		<div class="row" id="myList">
+								 					<div class="col-sm-2">{{ $event->id }}</div>
+											 		<div class="col-sm-2"><kbd> {{ $event->task }} </kbd></div>
+											 		<div class="col-sm-2">{{ Carbon\Carbon::parse($event->date_of_event)->format('d-M-Y') }}</div>
+											 		<div class="col-sm-6"> {{ $event->disc }} </div>
+												</div>
+										 	</li>
+										</a>
+									</td>
+								</tr>
+
+					        <?php } ?>
+
+					      @else
+
+					<?php
+
+						$date = new DateTime();
+				        $year =  $date->format('Y');
+				        $event_year = Carbon\Carbon::parse($event->date_of_event)->format('Y');
+				        
+				        // $diff_of_year = 1;
+
+				        $start_date_of_year = $date->setDate($year,1,1);
+				        $event_date = date_create(Carbon\Carbon::parse($event->date_of_event)->format('d-m')."-$year");
+
+				        // $event_date = date_create(Carbon\Carbon::parse($event->date_of_event));
+				        // $event_date = date_create(Carbon\Carbon::parse($event->date_of_event));
+
+				        $interval = $start_date_of_year->diff($event_date);
+				        $event_day = $interval->format('%a');
+
+				        // echo $event_year = Carbon\Carbon::parse($event->date_of_event)->format('Y');
+				        // $diff_of_year = $diff_of_year + ($year - $event_year);
+				        // $event_day = $event_day/$diff_of_year;
+				        // echo "--".($event_day)."--";
+
+				        $current_date = date_create(Carbon\Carbon::now());
+				        $interval = $start_date_of_year->diff($current_date);
+				        $year_day = $interval->format('%a');
+				        
+
+
+						// $date = date_create(Carbon\Carbon::parse($event->date_of_event));
+						// $today_epoch = date_format(date_create(Carbon\Carbon::now()),'U');
+				  //       $event_epoch = date_format($date, 'U');
+				  //       // echo trim($event_epoch);
+
+						if($event_day == $year_day && $event_year == $year){ 
+							$tomorrowCount = $event->where('date_of_event',Carbon\Carbon::parse($event->date_of_event))->count();
+							?>
+
+
+							<tr id='list-row'>
+								<td>
+									<a href='#{{ $event->id }}' >
+									 	<li class="list-group-item">
+									 		<div class="row" id="myList">
+							 					<div class="col-sm-2">{{ $event->id }}</div>
+										 		<div class="col-sm-2"><kbd> {{ $event->task }} </kbd></div>
+										 		<div class="col-sm-2">{{ Carbon\Carbon::parse($event->date_of_event)->format('d-M-Y') }}</div>
+										 		<div class="col-sm-6"> {{ $event->disc }} </div>
+											</div>
+									 	</li>
+									</a>
+								</td>
+							</tr>
+
+						<?php } ?>
+						@endif
+
 				@endforeach
 				<input type="hidden" id='tomorrow_count_field' value="@if(isset($tomorrowCount)) {{$tomorrowCount}} @else 0 @endif"/>
 				</table>
@@ -250,7 +423,7 @@ var allCount = document.getElementById('all_count_field').value;
 
 	</div>
 
-	<div role="tabpanel" class="tab-pane fade" id="references">
+	<div role="tabpanel" class="tab-pane fade" id="all_event">
 			<div class="card">
 				<div class="card-header"><h3>All Events</h3> </div>
 				<div class="card-body">
@@ -275,56 +448,56 @@ var allCount = document.getElementById('all_count_field').value;
 					<?php 
 
 						$all =0; 
-						$current_day = Carbon\Carbon::now()->format('d');
-						$current_month = Carbon\Carbon::now()->format('m');
-						$current_year = Carbon\Carbon::now()->format('y');
-
 						
-						$date = date_create(Carbon\Carbon::now());
-				        $today_epoch = date_format($date, 'U');
-				        
 				    ?>
 
 					@foreach($events->sortBy('date_of_event') as $event)
 						
-						@if('Birthday' == $event->task)
+					  @if('Birthday' == $event->task)
 
 						<?php
 
-							
-
 							$date = new DateTime();
 					        $year =  $date->format('Y');
+					        // $diff_of_year = 1;
 
-					        $start_date_of_year = $date->setDate((integer)$year,1,1);
-					        
+					        $start_date_of_year = $date->setDate($year,1,1);
+					        $event_date = date_create(Carbon\Carbon::parse($event->date_of_event)->format('d-m')."-$year");
 
-					        $event_date = date_create(Carbon\Carbon::parse($event->date_of_event));
-					        
+					        // $event_date = date_create(Carbon\Carbon::parse($event->date_of_event));
+					        // $event_date = date_create(Carbon\Carbon::parse($event->date_of_event));
+
 					        $interval = $start_date_of_year->diff($event_date);
+					        $event_day = $interval->format('%a');
 
-					        $event_day = (integer)$interval->format('%a');
+					        // echo $event_year = Carbon\Carbon::parse($event->date_of_event)->format('Y');
+					        // $diff_of_year = $diff_of_year + ($year - $event_year);
+					        // $event_day = $event_day/$diff_of_year;
+					        // echo "--".($event_day)."--";
 
 					        $current_date = date_create(Carbon\Carbon::now());
 					        $interval = $start_date_of_year->diff($current_date);
-					        $year_day = (integer)$interval->format('%a');
+					        $year_day = $interval->format('%a');
+					        
 
 
 					        if($event_day >= $year_day){ $all +=1; ?>
+					        	
 					        	<tr id='list-row'>
-												<td>
-													<a href='#{{ $event->id }}' >
-													 	<li class="list-group-item">
-													 		<div class="row" id="myList">
-												 					<div class="col-sm-2">{{ $event->id }}</div>
-															 		<div class="col-sm-2"><kbd> {{ $event->task }} </kbd></div>
-															 		<div class="col-sm-2">{{ Carbon\Carbon::parse($event->date_of_event)->format('d-M-Y') }}</div>
-															 		<div class="col-sm-6"> {{ $event->disc }} </div>
-															</div>
-													 	</li>
-													</a>
-												</td>
-											</tr>
+									<td>
+										<a href='#{{ $event->id }}' >
+										 	<li class="list-group-item">
+										 		<div class="row" id="myList">
+								 					<div class="col-sm-2">{{ $event->id }}</div>
+											 		<div class="col-sm-2"><kbd> {{ $event->task }} </kbd></div>
+											 		<div class="col-sm-2">{{ Carbon\Carbon::parse($event->date_of_event)->format('d-M-Y') }}</div>
+											 		<div class="col-sm-6"> {{ $event->disc }} </div>
+												</div>
+										 	</li>
+										</a>
+									</td>
+								</tr>
+
 					        <?php } ?>
 
 						@else
@@ -339,20 +512,20 @@ var allCount = document.getElementById('all_count_field').value;
 
 									if($event_epoch >= $today_epoch){ $all +=1; ?>
 
-											<tr id='list-row'>
-												<td>
-													<a href='#{{ $event->id }}' >
-													 	<li class="list-group-item">
-													 		<div class="row" id="myList">
-												 					<div class="col-sm-2">{{ $event->id }}</div>
-															 		<div class="col-sm-2"><kbd> {{ $event->task }} </kbd></div>
-															 		<div class="col-sm-2">{{ Carbon\Carbon::parse($event->date_of_event)->format('d-M-Y') }}</div>
-															 		<div class="col-sm-6"> {{ $event->disc }} </div>
-															</div>
-													 	</li>
-													</a>
-												</td>
-											</tr>
+										<tr id='list-row'>
+											<td>
+												<a href='#{{ $event->id }}' >
+												 	<li class="list-group-item">
+												 		<div class="row" id="myList">
+										 					<div class="col-sm-2">{{ $event->id }}</div>
+													 		<div class="col-sm-2"><kbd> {{ $event->task }} </kbd></div>
+													 		<div class="col-sm-2">{{ Carbon\Carbon::parse($event->date_of_event)->format('d-M-Y') }}</div>
+													 		<div class="col-sm-6"> {{ $event->disc }} </div>
+														</div>
+												 	</li>
+												</a>
+											</td>
+										</tr>
 
 									<?php } ?>
 

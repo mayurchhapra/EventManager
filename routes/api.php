@@ -18,3 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::get('/today',"UserController@today")->name('today');
+
+Route::get('/tomorrow',"UserController@tomorrow")->name('tomorrow');
+
+Route::get('/all',"UserController@all")->name('all');

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\User;
 use App\Event;
-use Carbon\Carbon;
+use Carbon;
 use DateTime;
 
 class UserController extends Controller
@@ -97,38 +97,123 @@ class UserController extends Controller
     	return redirect()->route('eventRegister',['save'=>'Saved']);
     }
 
-    public function today(){
+    public function today()
+    {
+        $obj_event = new Event::where('date_of_event','like','%30-04-1995%')->get();
+    }
 
-        $date = date_create('01/15/2022');
-        $epoch = date_format($date, 'U');
-        echo trim($epoch);
+    public function tomorrow()
+    {
+        $obj_event = new Event();
+        $events = $obj_event->all();
 
-        echo "<br>";
-        $date = new DateTime();
-        $year =  $date->format('Y');
+        foreach($events->sortBy('date_of_event') as $event)
+        {
+            $date = new DateTime();
+            $year =  $date->format('Y');
+            $event_year = Carbon\Carbon::parse($event->date_of_event)->format('Y');
+            $start_date_of_year = $date->setDate($year,1,1);
+            $event_date = date_create(Carbon\Carbon::parse($event->date_of_event)->format('d-m')."-$year");
+            $interval = $start_date_of_year->diff($event_date);
+            $event_day = $interval->format('%a');
 
-        echo gettype((integer)$year);
-        echo "<br>";
+            $current_date = date_create(Carbon\Carbon::now());
+            $interval = $start_date_of_year->diff($current_date);
+            $year_day = $interval->format('%a');
 
-        $start_date_of_year = $date->setDate((integer)$year,1,1);
-        echo date_format($start_date_of_year, 'U');
-        // echo "  ".$start_date_of_year->format('d-m-y');
+            if('Birthday' == $event->task)
+            {
+                if($event_day == $year_day){ 
 
-        echo "<br>";
+                }
+            }
 
-        $current_date = date_create(Carbon::now());
-        $current = date_format($current_date, 'U');
-        echo ($current);
+            else{
+           
+                if($event_day == $year_day && $event_year == $year){ 
+                    
+                    echo "<hr>".$event->id;  
+                }
+            
+            }
+            
+        }
+    }
 
-        echo "<br>";
 
-        $interval = $start_date_of_year->diff($current_date);
+    public function all_()
+    {
+        $obj_event = new Event();
+        $events = $obj_event->all();
 
-        $gape = (integer)$interval->format('%a');
+        $today = array();
 
-        echo "Gape = ".$gape;
+        foreach($events->sortBy('date_of_event') as $event)
+        {
+
+            if('Birthday' == $event->task)
+            {
+                $date = new DateTime();
+                $year =  $date->format('Y');
+
+                $start_date_of_year = $date->setDate($year,1,1);
+                $event_date = date_create(Carbon\Carbon::parse($event->date_of_event)->format('d-m')."-$year");
+
+                $interval = $start_date_of_year->diff($event_date);
+                $event_day = $interval->format('%a');
+
+                
+                $current_date = date_create(Carbon\Carbon::now());
+                $interval = $start_date_of_year->diff($current_date);
+                $year_day = $interval->format('%a');
 
 
+
+                if($event_day >= $year_day){ 
+
+                    $today_data = array(
+                        'status_code'=>200,
+                        'id'=>$event->id,
+                        'user_id'=>$event->user_id,
+                        'task'=>$event->task,
+                        'date_of_event'=>$event->date_of_event,
+                        'disc'=>$event->disc,
+                        'created_at'=>$event->created_at,
+                        'updated_at'=>$event->updated_at
+                    );
+                    array_push($today, $today_data);
+
+                }
+            }
+            else{
+                $date = date_create(Carbon\Carbon::parse($event->date_of_event));
+                $today_epoch = date_format(date_create(Carbon\Carbon::now()),'U');
+                $event_epoch = date_format($date, 'U');
+
+                if($event_epoch >= $today_epoch){ 
+
+                    $today_data = array(
+                        'status_code'=>200,
+                        'id'=>$event->id,
+                        'user_id'=>$event->user_id,
+                        'task'=>$event->task,
+                        'date_of_event'=>$event->date_of_event,
+                        'disc'=>$event->disc,
+                        'created_at'=>$event->created_at,
+                        'updated_at'=>$event->updated_at
+                    );
+                    array_push($today, $today_data);
+
+                }
+            }
+        }
+        $resp = array('status'=>true,'message'=>'success','data'=>$today);
+        return json_encode($resp);
+    }
+
+    public function all(){
 
     }
+
+
 }
