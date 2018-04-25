@@ -77,6 +77,10 @@ class UserController extends Controller
     	}
     }
 
+    public function dashboard(){
+        return view('dashboard');
+    }
+
     public function logout(Request $req){
     	$req->session()->forget('id');
     	$req->session()->forget('name');
@@ -99,119 +103,59 @@ class UserController extends Controller
 
     public function today()
     {
-        $obj_event = new Event::where('date_of_event','like','%30-04-1995%')->get();
+        $date_today = Carbon\Carbon::today()->format('Y-m-d');
+        json_encode($obj_event = Event::where('date_of_event','like','%'.$date_today.'%')
+                                ->orWhere(function ($query){
+                                $day_month = Carbon\Carbon::today()->format('m-d');
+                                $query->where('date_of_event','like','%'.$day_month.'%')
+                                      ->where('task','Birthday');
+                            })
+                            ->get());
+
+        $today_data = array(
+                'status'=>true,
+                'message'=>"This Contains Tomorrow's event list.",
+                'data'=>$obj_event
+           ); 
+
+        return json_encode($today_data);
     }
 
     public function tomorrow()
     {
-        $obj_event = new Event();
-        $events = $obj_event->all();
+        $date_tomorrow = Carbon\Carbon::tomorrow()->format('Y-m-d');
+        json_encode($obj_event = Event::where('date_of_event','like','%'.$date_tomorrow.'%')
+                                ->orWhere(function ($query){
+                                            $day_month = Carbon\Carbon::tomorrow()->format('m-d');
+                                            $query->where('date_of_event','like','%'.$day_month.'%')
+                                                  ->where('task','Birthday');
+                                        })
+                            ->get());
+            $tomorrow_data = array(
+                'status'=>true,
+                'message'=>"This Contains Tomorrow's event list.",
+                'data'=>$obj_event
+           ); 
 
-        foreach($events->sortBy('date_of_event') as $event)
-        {
-            $date = new DateTime();
-            $year =  $date->format('Y');
-            $event_year = Carbon\Carbon::parse($event->date_of_event)->format('Y');
-            $start_date_of_year = $date->setDate($year,1,1);
-            $event_date = date_create(Carbon\Carbon::parse($event->date_of_event)->format('d-m')."-$year");
-            $interval = $start_date_of_year->diff($event_date);
-            $event_day = $interval->format('%a');
-
-            $current_date = date_create(Carbon\Carbon::now());
-            $interval = $start_date_of_year->diff($current_date);
-            $year_day = $interval->format('%a');
-
-            if('Birthday' == $event->task)
-            {
-                if($event_day == $year_day){ 
-
-                }
-            }
-
-            else{
-           
-                if($event_day == $year_day && $event_year == $year){ 
-                    
-                    echo "<hr>".$event->id;  
-                }
-            
-            }
-            
-        }
-    }
-
-
-    public function all_()
-    {
-        $obj_event = new Event();
-        $events = $obj_event->all();
-
-        $today = array();
-
-        foreach($events->sortBy('date_of_event') as $event)
-        {
-
-            if('Birthday' == $event->task)
-            {
-                $date = new DateTime();
-                $year =  $date->format('Y');
-
-                $start_date_of_year = $date->setDate($year,1,1);
-                $event_date = date_create(Carbon\Carbon::parse($event->date_of_event)->format('d-m')."-$year");
-
-                $interval = $start_date_of_year->diff($event_date);
-                $event_day = $interval->format('%a');
-
-                
-                $current_date = date_create(Carbon\Carbon::now());
-                $interval = $start_date_of_year->diff($current_date);
-                $year_day = $interval->format('%a');
-
-
-
-                if($event_day >= $year_day){ 
-
-                    $today_data = array(
-                        'status_code'=>200,
-                        'id'=>$event->id,
-                        'user_id'=>$event->user_id,
-                        'task'=>$event->task,
-                        'date_of_event'=>$event->date_of_event,
-                        'disc'=>$event->disc,
-                        'created_at'=>$event->created_at,
-                        'updated_at'=>$event->updated_at
-                    );
-                    array_push($today, $today_data);
-
-                }
-            }
-            else{
-                $date = date_create(Carbon\Carbon::parse($event->date_of_event));
-                $today_epoch = date_format(date_create(Carbon\Carbon::now()),'U');
-                $event_epoch = date_format($date, 'U');
-
-                if($event_epoch >= $today_epoch){ 
-
-                    $today_data = array(
-                        'status_code'=>200,
-                        'id'=>$event->id,
-                        'user_id'=>$event->user_id,
-                        'task'=>$event->task,
-                        'date_of_event'=>$event->date_of_event,
-                        'disc'=>$event->disc,
-                        'created_at'=>$event->created_at,
-                        'updated_at'=>$event->updated_at
-                    );
-                    array_push($today, $today_data);
-
-                }
-            }
-        }
-        $resp = array('status'=>true,'message'=>'success','data'=>$today);
-        return json_encode($resp);
+           return json_encode($tomorrow_data);
     }
 
     public function all(){
+        $date_today = Carbon\Carbon::today()->format('Y-m-d');
+        json_encode($obj_event = Event::where('date_of_event','>=',$date_today)
+                                    ->orWhere(function($q){
+                                        $day_month = Carbon\Carbon::today()->format('m-d');
+                                        $q  ->where('date_of_event','>=','%'.$day_month.'%')
+                                            ->where('task','Birthday');
+                                    })
+                                    ->get());
+           $all_data = array(
+                'status'=>true,
+                'message'=>"this Contains all the event list.",
+                'data'=>$obj_event
+           ); 
+
+           return json_encode($all_data);
 
     }
 

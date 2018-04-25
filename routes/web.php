@@ -30,10 +30,7 @@ Route::post('/login/authenticate','UserController@authenticate')->name('authenti
 
 Route::post('/logout','UserController@logout')->name('logout');
 
-Route::get('/dashboard',function(){
-	$events = new Event();
-	return view('dashboard',['events'=>$events->all()]);
-})->name('dashboard');
+Route::get('/dashboard','UserController@dashboard')->name('dashboard');
 
 Route::get('/eventRegister',function(){
 	return view('eventRegister');
