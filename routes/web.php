@@ -16,24 +16,36 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/register',function(){
-	return view('register');
-})->name('register');
 
-Route::get('/login',function(){
-	return view('login');
-})->name('login');
+Route::group(['middleware'=>'CheckUser'], function()
+{
+	Route::get('/eventRegister',function()
+							{
+								return view('eventRegister');
+							})->name('eventRegister');
 
-Route::post('/register/save','UserController@save')->name('register/save');
+	Route::post('/logout','UserController@logout')->name('logout');
 
-Route::post('/login/authenticate','UserController@authenticate')->name('authenticate');
+	Route::get('/dashboard','UserController@dashboard')->name('dashboard');
 
-Route::post('/logout','UserController@logout')->name('logout');
+	Route::post('event/Save','UserController@eventSave')->name('eventSave');
 
-Route::get('/dashboard','UserController@dashboard')->name('dashboard');
+	Route::get('test','UserController@test');
 
-Route::get('/eventRegister',function(){
-	return view('eventRegister');
-})->name('eventRegister');
+});
 
-Route::post('event/Save','UserController@eventSave')->name('eventSave');
+Route::group(['middleware'=>'checkLogin'],function(){
+
+	Route::get('/register',function(){
+		return view('register');
+		})->name('register');
+
+	Route::get('/login',function(){
+		return view('login');
+		})->name('login');
+
+	Route::post('/register/save','UserController@save')->name('register/save');
+
+	Route::post('/login/authenticate','UserController@authenticate')->name('authenticate');
+
+});

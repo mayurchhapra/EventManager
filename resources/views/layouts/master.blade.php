@@ -22,9 +22,9 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
     <style type="text/css">
-    	.navbarDropdown:hover{
+    	.hoverX:hover{
 		color: #fff;
-	}
+	   }
     </style>
 
     @yield('JS_script')
@@ -35,7 +35,7 @@
 
 	<nav class="navbar navbar-expand-md navbar-light navbar-laravel " >
         <div class="container">
-            <a class="navbar-brand heading" href="{{ url('/dashboard') }}">
+            <a class="navbar-brand heading hoverX" href="{{ url('/dashboard') }}" onmouseover="this.style.color='#fff';this.style.background='#000'" onmouseout="this.style.color = '#000';this.style.background='#fff'">
                 NoteEvent
             </a>
 
@@ -53,10 +53,10 @@
                 <ul class="navbar-nav ml-auto">
                     <!-- Authentication Links -->
                    @if(app('request')->session()->get('id'))
-                   		<li class="nav-item"><a class="nav-link" href="#"> <i class="material-icons" style="font-size:22px;color: black">event</i> </a></li>
+                   		<li class="nav-item"><a class="nav-link" href="{{ url('/eventRegister') }}"> <i class="material-icons"  onmouseover="this.style.color='#fff';this.style.background='#000'" onmouseout="this.style.color = '#000';this.style.background='#fff'">event</i> </a></li>
 
                         <li class="nav-item dropdown">
-                            <a id="navbarDropdown " class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                            <a id="navbarDropdown " class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  onmouseover="this.style.color='#fff';this.style.background='#000'" onmouseout="this.style.color = '#000';this.style.background='#fff'">
                                {{app('request')->session()->get('name')}} <span class="caret"></span>
                             </a>
 
@@ -90,7 +90,9 @@
 		<br>
 		@yield('content')
 	</div>
-	<footer>
+	<footer style='margin-top: 1%;'>
+        <div class="text-center">PoweredBy MNB Inc.</div>
+    
 	@yield('footer')
 	@yield('footer_JSscript')
 	</footer>

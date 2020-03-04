@@ -69,6 +69,8 @@ class UserController extends Controller
     	if(count($data)>0){
     		$req->session()->put('id',$data[0]->id);
     		$req->session()->put('name',$data[0]->name);
+
+            $req->session()->save();
     		return redirect()->route('dashboard');
     	}
     	else
@@ -77,16 +79,17 @@ class UserController extends Controller
     	}
     }
 
-    public function dashboard(){
-        return view('dashboard');
+    public function dashboard(Request $req){
+        if($req->session()->get('id'))
+            return view('dashboard');
+        
+        else
+            return view('welcome');
+        
+        
     }
 
-    public function logout(Request $req){
-    	$req->session()->forget('id');
-    	$req->session()->forget('name');
-    	return redirect('/');
-    }
-
+    
     public function eventSave(Request $req){
 
     	$eventToSave=array(
@@ -100,17 +103,25 @@ class UserController extends Controller
 
     	return redirect()->route('eventRegister',['save'=>'Saved']);
     }
+    public function test(Request $req){
 
-    public function today()
+        return $req->session()->get('id');
+    }
+
+    public function today(Request $req)
     {
         $date_today = Carbon\Carbon::today()->format('Y-m-d');
-        json_encode($obj_event = Event::where('date_of_event','like','%'.$date_today.'%')
-                                ->orWhere(function ($query){
-                                $day_month = Carbon\Carbon::today()->format('m-d');
-                                $query->where('date_of_event','like','%'.$day_month.'%')
-                                      ->where('task','Birthday');
-                            })
-                            ->get());
+        $day_month = Carbon\Carbon::tomorrow()->format('m-d');
+        json_encode($obj_event = Event::where([
+                                            ['user_id',$req->session()->get('id')],
+                                            ['date_of_event','like','%'.$date_today.'%']                                            
+                                        ])
+                                        ->orWhere([
+                                            ['user_id',$req->session()->get('id')],
+                                            ['date_of_event','like','%'.$day_month.'%'],
+                                            ['task','Birthday']
+                                        ])
+                                        ->get());
 
         $today_data = array(
                 'status'=>true,
@@ -121,16 +132,22 @@ class UserController extends Controller
         return json_encode($today_data);
     }
 
-    public function tomorrow()
+    public function tomorrow(Request $req)
     {
         $date_tomorrow = Carbon\Carbon::tomorrow()->format('Y-m-d');
-        json_encode($obj_event = Event::where('date_of_event','like','%'.$date_tomorrow.'%')
-                                ->orWhere(function ($query){
-                                            $day_month = Carbon\Carbon::tomorrow()->format('m-d');
-                                            $query->where('date_of_event','like','%'.$day_month.'%')
-                                                  ->where('task','Birthday');
-                                        })
-                            ->get());
+        $day_month = Carbon\Carbon::tomorrow()->format('m-d');
+
+        json_encode($obj_event = Event::where([
+                                                ['date_of_event','like','%'.$date_tomorrow.'%'],
+                                                ['user_id',$req->session()->get('id')]
+                                            ])
+
+                                            ->orWhere([
+                                                ['date_of_event','like','%'.$day_month.'%'],
+                                                ['task','Birthday'],
+                                                ['user_id',$req->session()->get('id')]
+                                            ])
+                                            ->get());
             $tomorrow_data = array(
                 'status'=>true,
                 'message'=>"This Contains Tomorrow's event list.",
@@ -140,15 +157,24 @@ class UserController extends Controller
            return json_encode($tomorrow_data);
     }
 
-    public function all(){
+    public function all(Request $req){
+
+
         $date_today = Carbon\Carbon::today()->format('Y-m-d');
-        json_encode($obj_event = Event::where('date_of_event','>=',$date_today)
-                                    ->orWhere(function($q){
-                                        $day_month = Carbon\Carbon::today()->format('m-d');
-                                        $q  ->where('date_of_event','>=','%'.$day_month.'%')
-                                            ->where('task','Birthday');
-                                    })
-                                    ->get());
+        $day_month = Carbon\Carbon::today()->format('m-d');
+
+        
+        json_encode($obj_event = Event::where([
+                                               ['date_of_event','>=',$date_today],
+                                               ['user_id',$req->session()->get('id')]
+                                            ])
+                                            ->orWhere([
+                                                ['user_id',$req->session()->get('id')],
+                                                ['date_of_event','>=','%'.$day_month.'%'],
+                                                ['task','Birthday']
+                                            ])
+                                            ->orderBy('date_of_event','>',$day_month)
+                                            ->get());
            $all_data = array(
                 'status'=>true,
                 'message'=>"this Contains all the event list.",
@@ -157,6 +183,12 @@ class UserController extends Controller
 
            return json_encode($all_data);
 
+    }
+
+    public function logout(Request $req){
+        $req->session()->forget('id');
+        $req->session()->forget('name');
+        return redirect('/');
     }
 
 

@@ -33,6 +33,9 @@
 	.tab-heading:hover{
 		color: #fff;
 	}
+	.nav-link:hover{
+		color: #fff;
+	}
 </style>
 
 @stop
@@ -80,6 +83,7 @@
 
 
 <div class="tab-content" id="nav-tabContent">
+
   <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
   	<div class='card'>
 			<div class="card-header"><h3>Event List</h3> </div>
@@ -89,34 +93,36 @@
 				</div>
 			</div>
 		</div>
-
-		<table align="center" style="width: 100%;" id="myTable">
-				<tr>
-					<th>
-						<li class="list-group-item font-weight-bold header" style="background-color: #bbf;color: #000;font-style: bold;">
-					 		<div class="row">
-								<div class="col-sm-2">ID</div>
-								<div class="col-sm-2">Event</div>
-								<div class="col-sm-2">Date</div>
-								<div class="col-sm-6">Discription</div>
-					 		</div>
-					 	</li>
-					 </th>
-				</tr>
-				<tr id='list-row'>
 					<div id='today'></div>
-				</tr>
-
-  		</table>
   	</div>
-</div>
+
 
 
   <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-  	<div id='tomorrow'>2</div>
+  	<div class='card'>
+		<div class="card-header"><h3>Event List</h3> </div>
+		<div class="card-body">
+			<div class="form-group">
+				<input type="text" id="myInput02" onkeyup="tomorrow()" placeholder="Search Anything" title="Type in a name" class="form-control">
+			</div>
+		</div>
+	</div>
+
+  	<div id='tomorrow'></div>
   </div>
+
   <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+  	<div class='card'>
+		<div class="card-header"><h3>Event List</h3> </div>
+		<div class="card-body">
+			<div class="form-group">
+				<input type="text" id="myInput2" onkeyup="all_events()" placeholder="Search Anything" title="Type in a name" class="form-control">
+			</div>
+		</div>
+	</div>
+
   	<div id='all'>3</div>
+
   </div>
 </div>
 
@@ -137,16 +143,31 @@
 //  })
 
 
-	$.getJSON('http://localhost:8000/api/today',function(res){
+	$.getJSON('http://'+window.location.hostname+":"+window.location.port+'/api/today',function(res){
 		var today_json_data = res.data;
+		//document.write();
 		document.getElementById('CountToday').innerHTML = `${today_json_data.length}`;
 
 		document.getElementById("today").innerHTML=`
+				<table align="center" style="width: 100%;" id="myTable">
+						<tr>
+							<th>
+								<li class="list-group-item font-weight-bold header" style="background-color: #bbf;color: #000;font-style: bold;">
+							 		<div class="row">
+										<div class="col-sm-2">ID</div>
+										<div class="col-sm-2">Event</div>
+										<div class="col-sm-2">Date</div>
+										<div class="col-sm-6">Discription</div>
+							 		</div>
+							 	</li>
+							 </th>
+						</tr>
+
 		
 
 					${today_json_data.map(function(event){
 						return `
-							
+								<tr id='list-row'>
 									<td>
 										<a href='#${ event.id }' >
 										 	<li class="list-group-item">
@@ -159,21 +180,157 @@
 										 	</li>
 										</a>
 									</td>
+								</tr>
 						`;
 					}).join('')}
+				</table>
 
 		`;
 	});
 
-	$.getJSON('http://localhost:8000/api/tomorrow',function(res){
+	$.getJSON('http://'+window.location.hostname+":"+window.location.port+'/api/tomorrow',function(res){
 		var tomorrow_json_data = res.data;
 		document.getElementById('CountTomorrow').innerHTML = `${tomorrow_json_data.length}`;
+
+		document.getElementById("tomorrow").innerHTML=`
+				<table align="center" style="width: 100%;" id="myTable02">
+						<tr>
+							<th>
+								<li class="list-group-item font-weight-bold header" style="background-color: #bbf;color: #000;font-style: bold;">
+							 		<div class="row">
+										<div class="col-sm-2">ID</div>
+										<div class="col-sm-2">Event</div>
+										<div class="col-sm-2">Date</div>
+										<div class="col-sm-6">Discription</div>
+							 		</div>
+							 	</li>
+							 </th>
+						</tr>
+
+			${tomorrow_json_data.map(function(event){
+			return `
+
+						<tr id='list-row'>
+							<td>
+								<a href='#${ event.id }' >
+								 	<li class="list-group-item">
+								 		<div class="row" id="myList">
+						 					<div class="col-sm-2">${ event.id }</div>
+						 					<div class="col-sm-2"><kbd> ${event.task} </kbd></div>
+						 					<div class="col-sm-2">${event.date_of_event}</div>
+						 					<div class="col-sm-6"> ${event.disc} </div>
+										</div>
+								 	</li>
+								</a>
+							</td>
+						</tr>
+						`;
+					}).join('')}
+				</table>
+
+			`;
+
 	});
 
-	$.getJSON('http://localhost:8000/api/all',function(res){
+	$.getJSON('http://'+window.location.hostname+":"+window.location.port+'/api/all',function(res){
 		var all_json_data = res.data;
 		document.getElementById('CountAll').innerHTML = `${all_json_data.length}`;
+
+		document.getElementById("all").innerHTML=`
+				<table align="center" style="width: 100%;" id="myTable2">
+						<tr>
+							<th>
+								<li class="list-group-item font-weight-bold header" style="background-color: #bbf;color: #000;font-style: bold;">
+							 		<div class="row">
+										<div class="col-sm-2">ID</div>
+										<div class="col-sm-2">Event</div>
+										<div class="col-sm-2">Date</div>
+										<div class="col-sm-6">Discription</div>
+							 		</div>
+							 	</li>
+							 </th>
+						</tr>
+
+						${all_json_data.map(function(event){
+						return `
+
+						<tr id='list-row'>
+							<td>
+								<a href='#${ event.id }' >
+								 	<li class="list-group-item">
+								 		<div class="row" id="myList">
+						 					<div class="col-sm-2">${ event.id }</div>
+						 					<div class="col-sm-2"><kbd> ${event.task} </kbd></div>
+						 					<div class="col-sm-2">${event.date_of_event}</div>
+						 					<div class="col-sm-6"> ${event.disc} </div>
+										</div>
+								 	</li>
+								</a>
+							</td>
+						</tr>
+						`;
+					}).join('')}
+				</table>
+
+						`;
 	});
+
+
+function today() {
+  var input, filter, table, tr, td, i;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }       
+  }
+}
+
+function tomorrow() {
+  var input, filter, table, tr, td, i;
+  input = document.getElementById("myInput02");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable02");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }       
+  }
+}
+
+function all_events() {
+  var input, filter, table, tr, td, i;
+  input = document.getElementById("myInput2");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable2");
+  tr = table.getElementsByTagName("tr");
+  console.log('all: '+input);
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }       
+  }
+}
+
 
 
 </script>	

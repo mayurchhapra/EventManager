@@ -68,27 +68,31 @@
         <div class="flex-center position-ref full-height">
             @if (Route::has('login'))
                 <div class="top-right links">
-                    @auth
-                        <a href="{{ url('/home') }}">Home</a>
+                    
+                    @if(app('request')->session()->get('id'))
+                        <a href="{{ url('/dashboard') }}">{{app('request')->session()->get('name')}}</a>
                     @else
                         <a href="{{ route('login') }}">Login</a>
                         <a href="{{ route('register') }}">Register</a>
-                    @endauth
+                    @endif
                 </div>
             @endif
 
             <div class="content">
-                <div class="title m-b-md">
-                    Laravel
+                
+                <div class="title m-b-md" style="padding-bottom: -2%;margin-bottom: -2%">
+                    MNB
                 </div>
+                <div class="links" ><a>We make things for you.</a></div>
 
-                <div class="links">
+
+                <!-- <div class="links" style="margin-top: 1%;">
                     <a href="https://laravel.com/docs">Documentation</a>
                     <a href="https://laracasts.com">Laracasts</a>
                     <a href="https://laravel-news.com">News</a>
                     <a href="https://forge.laravel.com">Forge</a>
                     <a href="https://github.com/laravel/laravel">GitHub</a>
-                </div>
+                </div> -->
             </div>
         </div>
     </body>
